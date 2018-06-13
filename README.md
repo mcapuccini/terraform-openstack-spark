@@ -1,2 +1,2 @@
-# terraform-openstack-spark
-Terraform module to deploy Apache Spark.
+# OpenStack Apache Spark Terraform Module
+Terraform module to deploy Apache Spark on OpenStack.
