@@ -14,5 +14,6 @@ docker run --detach \
   --network host \
   --add-host "$(hostname):127.0.0.1" \
   --restart always \
+  --name "spark-master" \
   "${spark_docker_image}" \
   bin/spark-class org.apache.spark.deploy.master.Master
