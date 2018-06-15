@@ -17,3 +17,12 @@ docker run --detach \
   --name "spark-master" \
   "${spark_docker_image}" \
   bin/spark-class org.apache.spark.deploy.master.Master
+
+# Start spark-ui-proxy
+# shellcheck disable=SC2154
+docker run --detach \
+  --network host \
+  --restart always \
+  --name "spark-ui-proxy" \
+  "${spark-ui-proxy_docker_image}" \
+  localhost:8080 9999
