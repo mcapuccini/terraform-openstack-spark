@@ -20,9 +20,10 @@ docker run --detach \
 
 # Start spark-ui-proxy
 # shellcheck disable=SC2154
+docker build -t local/spark-ui-proxy "${spark-ui-proxy_repo}"
 docker run --detach \
   --network host \
   --restart always \
   --name "spark-ui-proxy" \
-  "${spark-ui-proxy_docker_image}" \
+  local/spark-ui-proxy \
   localhost:8080 9999

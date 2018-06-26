@@ -28,9 +28,9 @@ variable spark_docker_image {
   default     = "gettyimages/spark:2.2.1-hadoop-2.7"
 }
 
-variable spark-ui-proxy_docker_image {
-  description = "spark-ui-proxy Docker image"
-  default     = "mcapuccini/spark-ui-proxy"
+variable spark-ui-proxy_repo {
+  description = "spark-ui-proxy Git repository"
+  default     = "https://github.com/aseigneurin/spark-ui-proxy.git"
 }
 
 variable worker_flavor_name {
