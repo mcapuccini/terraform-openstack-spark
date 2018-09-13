@@ -19,8 +19,9 @@ data "template_file" "master_bootstrap" {
   template = "${file("${path.module}/bin/bootstrap-master.sh")}"
 
   vars {
-    spark_docker_image  = "${var.spark_docker_image}"
-    spark-ui-proxy_repo = "${var.spark-ui-proxy_repo}"
+    spark_docker_image    = "${var.spark_docker_image}"
+    spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
+    zeppelin_docker_image = "${var.zeppelin_docker_image}"
   }
 }
 

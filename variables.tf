@@ -25,7 +25,7 @@ variable master_flavor_name {
 
 variable spark_docker_image {
   description = "Spark Docker image"
-  default     = "gettyimages/spark:2.2.1-hadoop-2.7"
+  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
 }
 
 variable spark-ui-proxy_repo {
@@ -44,4 +44,9 @@ variable workers_count {
 variable workers_floating_ip {
   description = "If true a floating IP will be attached to each worker"
   default     = false
+}
+
+variable zeppelin_docker_image {
+  description = "Apache Zeppelin Docker image"
+  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
 }

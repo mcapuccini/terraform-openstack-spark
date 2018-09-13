@@ -7,7 +7,7 @@ echo "Detected private IPv4: $private_IPv4"
 echo "Detected public IPv4: $public_IPv4"
 
 # Start Spark master
-# shellcheck disable=SC2154
+# shellcheck disable=SC2154,SC2016
 docker run --detach \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --env "SPARK_MASTER_HOST=$private_IPv4" \
@@ -16,7 +16,8 @@ docker run --detach \
   --restart always \
   --name "spark-master" \
   "${spark_docker_image}" \
-  bin/spark-class org.apache.spark.deploy.master.Master
+  sh -c \
+  '$SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master'
 
 # Start spark-ui-proxy
 # shellcheck disable=SC2154
@@ -27,3 +28,16 @@ docker run --detach \
   --name "spark-ui-proxy" \
   local/spark-ui-proxy \
   localhost:8080 9999
+
+# Start Zeppelin
+# shellcheck disable=SC2154,SC2016
+docker run --detach \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --net=host \
+  --add-host "$(hostname):127.0.0.1" \
+  --restart always \
+  --env MASTER="spark://$private_IPv4:7077" \
+  --env ZEPPELIN_PORT=8888 \
+  --name "zeppelin" \
+  "${zeppelin_docker_image}" \
+  sh -c '$Z_HOME/bin/zeppelin.sh'
