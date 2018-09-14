@@ -58,3 +58,6 @@ docker run --detach \
   sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;
   $Z_HOME/bin/zeppelin.sh'
+
+# Singnal done
+touch /tmp/bootstrap-signal

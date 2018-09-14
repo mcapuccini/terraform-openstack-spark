@@ -17,3 +17,8 @@ output "hostnames" {
   description = "List of hostnames (one per node)"
   value       = ["${openstack_compute_instance_v2.instance.*.name}"]
 }
+
+output "node_id_list" {
+  description = "List of ids (one per node)"
+  value       = ["${openstack_compute_instance_v2.instance.*.id}"]
+}

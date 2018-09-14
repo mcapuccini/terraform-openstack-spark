@@ -63,3 +63,22 @@ module "workers" {
   floating_ip_pool   = "${var.floating_ip_pool}"
   bootstrap_script   = "${data.template_file.worker_bootstrap.rendered}"
 }
+
+# wait for master bootstrap
+resource "null_resource" "cluster" {
+  triggers {
+    cluster_instance_ids = "${join(",", module.master.node_id_list)}"
+  }
+
+  connection {
+    host        = "${element(module.master.public_ip_list,0)}"
+    user        = "core"
+    private_key = "${file(replace(var.public_key,".pub",""))}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "while [ ! -f /tmp/bootstrap-signal ]; do sleep 2; done",
+    ]
+  }
+}
