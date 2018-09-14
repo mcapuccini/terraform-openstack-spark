@@ -6,6 +6,18 @@ public_IPv4="$(curl -4 icanhazip.com)"
 echo "Detected private IPv4: $private_IPv4"
 echo "Detected public IPv4: $public_IPv4"
 
+# Install GPU driver, if card is present
+if lspci | grep -q NVIDIA; then
+  # shellcheck disable=SC2154
+  docker run --name nvidia4coreos --privileged --volume /:/hostfs "${nvidia4coreos_docker_image}"
+  sudo systemctl enable /etc/systemd/system/nvidia4coreos.service
+  sudo systemctl start nvidia4coreos.service
+else
+  # Run the container to create the volume
+  # shellcheck disable=SC2154
+  docker run --name nvidia4coreos "${nvidia4coreos_docker_image}" true
+fi
+
 # Start Spark master
 # shellcheck disable=SC2154,SC2016
 docker run --detach \
@@ -14,10 +26,12 @@ docker run --detach \
   --network host \
   --add-host "$(hostname):127.0.0.1" \
   --restart always \
+  --volumes-from nvidia4coreos \
   --name "spark-master" \
   "${spark_docker_image}" \
-  sh -c \
-  '$SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master'
+  sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;
+  $SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master'
 
 # Start spark-ui-proxy
 # shellcheck disable=SC2154
@@ -38,6 +52,9 @@ docker run --detach \
   --restart always \
   --env MASTER="spark://$private_IPv4:7077" \
   --env ZEPPELIN_PORT=8888 \
+  --volumes-from nvidia4coreos \
   --name "zeppelin" \
   "${zeppelin_docker_image}" \
-  sh -c '$Z_HOME/bin/zeppelin.sh'
+  sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;
+  $Z_HOME/bin/zeppelin.sh'

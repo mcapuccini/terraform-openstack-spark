@@ -19,9 +19,10 @@ data "template_file" "master_bootstrap" {
   template = "${file("${path.module}/bin/bootstrap-master.sh")}"
 
   vars {
-    spark_docker_image    = "${var.spark_docker_image}"
-    spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
-    zeppelin_docker_image = "${var.zeppelin_docker_image}"
+    spark_docker_image         = "${var.spark_docker_image}"
+    spark-ui-proxy_repo        = "${var.spark-ui-proxy_repo}"
+    zeppelin_docker_image      = "${var.zeppelin_docker_image}"
+    nvidia4coreos_docker_image = "${var.nvidia4coreos_docker_image}"
   }
 }
 
@@ -43,8 +44,9 @@ data "template_file" "worker_bootstrap" {
   template = "${file("${path.module}/bin/bootstrap-worker.sh")}"
 
   vars {
-    spark_docker_image = "${var.spark_docker_image}"
-    master_private_ip  = "${element(module.master.local_ip_list,0)}"
+    spark_docker_image         = "${var.spark_docker_image}"
+    master_private_ip          = "${element(module.master.local_ip_list,0)}"
+    nvidia4coreos_docker_image = "${var.nvidia4coreos_docker_image}"
   }
 }
 

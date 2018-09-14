@@ -50,3 +50,8 @@ variable zeppelin_docker_image {
   description = "Apache Zeppelin Docker image"
   default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
 }
+
+variable nvidia4coreos_docker_image {
+  description = "nvidia4coreos Docker image (more info: https://github.com/mcapuccini/nvidia4coreos)"
+  default     = "mcapuccini/nvidia4coreos:396.44-coreos-latest"
+}
