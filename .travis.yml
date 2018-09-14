@@ -6,6 +6,10 @@ sudo: required
 services:
   - docker
 
+branches:
+  only:
+    - master
+
 env:
   global:
     - TERRAFORM_VERSION=0.11.7
