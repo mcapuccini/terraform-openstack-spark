@@ -47,11 +47,13 @@ docker run --detach \
 # shellcheck disable=SC2154,SC2016
 docker run --detach \
   --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume /var/zeppelin-notebooks:/notebooks \
   --net=host \
   --add-host "$(hostname):127.0.0.1" \
   --restart always \
   --env MASTER="spark://$private_IPv4:7077" \
   --env ZEPPELIN_PORT=8888 \
+  --env ZEPPELIN_NOTEBOOK_DIR=/notebooks \
   --volumes-from nvidia4coreos \
   --name "zeppelin" \
   "${zeppelin_docker_image}" \
