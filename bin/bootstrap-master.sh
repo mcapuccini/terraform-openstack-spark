@@ -2,9 +2,7 @@
 
 # Detect IP addresses
 private_IPv4="$(ifconfig eth0 | awk '/inet / {print $2}')"
-public_IPv4="$(curl -4 icanhazip.com)"
 echo "Detected private IPv4: $private_IPv4"
-echo "Detected public IPv4: $public_IPv4"
 
 # Install GPU driver, if card is present
 if lspci | grep -q NVIDIA; then
