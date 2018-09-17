@@ -21,7 +21,7 @@ else
 fi
 
 # Start Spark worker
-# shellcheck disable=SC2154,SC2016
+# shellcheck disable=SC2154,SC2016,SC2044
 docker run --detach \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --env "SPARK_MASTER_HOST=$private_IPv4" \
@@ -30,6 +30,7 @@ docker run --detach \
   --restart always \
   --volumes-from nvidia4coreos \
   --name "spark-worker" \
+  "$(for d in $(find /dev -type f -name "nvidia*"); do echo -n "--device $d "; done)" \
   "${spark_docker_image}" \
   sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;

@@ -21,7 +21,7 @@ else
 fi
 
 # Start Spark master
-# shellcheck disable=SC2154,SC2016
+# shellcheck disable=SC2154,SC2016,SC2044
 docker run --detach \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --env "SPARK_MASTER_HOST=$private_IPv4" \
@@ -30,6 +30,7 @@ docker run --detach \
   --restart always \
   --volumes-from nvidia4coreos \
   --name "spark-master" \
+  "$(for d in $(find /dev -type f -name "nvidia*"); do echo -n "--device $d "; done)" \
   "${spark_docker_image}" \
   sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;
@@ -46,7 +47,7 @@ docker run --detach \
   localhost:8080 9999
 
 # Start Zeppelin
-# shellcheck disable=SC2154,SC2016
+# shellcheck disable=SC2154,SC2016,SC2044
 docker run --detach \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume /var/zeppelin-notebooks:/notebooks \
@@ -58,6 +59,7 @@ docker run --detach \
   --env ZEPPELIN_NOTEBOOK_DIR=/notebooks \
   --volumes-from nvidia4coreos \
   --name "zeppelin" \
+  "$(for d in $(find /dev -type f -name "nvidia*"); do echo -n "--device $d "; done)" \
   "${zeppelin_docker_image}" \
   sh -c 'export PATH=$PATH:/opt/nvidia/bin/;
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib;
