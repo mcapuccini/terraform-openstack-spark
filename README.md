@@ -24,11 +24,11 @@ On your workstation you need to:
 
 On your OpenStack project you need to:
 
-- Import the [CoreOS](https://coreos.com/) Container-Linux image (instructions [here](https://coreos.com/os/docs/latest/booting-on-openstack.html@@))
+- Import the [CoreOS](https://coreos.com/) Container-Linux image (instructions [here](https://coreos.com/os/docs/latest/booting-on-openstack.html))
 
 ## Configuration
 
-Start by creating a diractory, locating into it and creating the main Terraform configuration file:
+Start by creating a directory, locating into it and by creating the main Terraform configuration file:
 
 ```
 mkdir deployment
@@ -60,13 +60,13 @@ terraform init
 
 ## Deploy
 
-To deploy the cluster by running:
+To deploy please run:
 
 ```
 terraform apply
 ```
 
-Once the deployment is done, to get the tunnelling commands to the interfaces you can run:
+Once the deployment is done, to get the SSH tunnelling commands to the interfaces you can run:
 
 ```
 terraform output -module=spark
