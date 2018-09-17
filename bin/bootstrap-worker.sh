@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Prevent rebooting
+echo "REBOOT_STRATEGY=off" | sudo tee --append /etc/coreos/update.conf
+sudo systemctl restart locksmithd
+
 # Detect IP addresses
 private_IPv4="$(ifconfig eth0 | awk '/inet / {print $2}')"
 echo "Detected private IPv4: $private_IPv4"
