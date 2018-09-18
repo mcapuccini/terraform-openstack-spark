@@ -19,10 +19,10 @@ data "template_file" "master_bootstrap" {
   template = "${file("${path.module}/bin/bootstrap-master.sh")}"
 
   vars {
-    spark_docker_image         = "${var.spark_docker_image}"
-    spark-ui-proxy_repo        = "${var.spark-ui-proxy_repo}"
-    zeppelin_docker_image      = "${var.zeppelin_docker_image}"
-    nvidia4coreos_docker_image = "${var.nvidia4coreos_docker_image}"
+    spark_docker_image    = "${var.spark_docker_image}"
+    spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
+    zeppelin_docker_image = "${var.zeppelin_docker_image}"
+    nvidia_driver_version = "${var.nvidia_driver_version}"
   }
 }
 
@@ -31,7 +31,7 @@ module "master" {
   name_prefix        = "${var.cluster_prefix}-master"
   count              = "1"
   flavor_name        = "${var.master_flavor_name}"
-  image_name         = "${var.image_name}"
+  image_name         = "${var.coreos_image_name}"
   keypair_name       = "${module.keypair.keypair_name}"
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
@@ -44,9 +44,9 @@ data "template_file" "worker_bootstrap" {
   template = "${file("${path.module}/bin/bootstrap-worker.sh")}"
 
   vars {
-    spark_docker_image         = "${var.spark_docker_image}"
-    master_private_ip          = "${element(module.master.local_ip_list,0)}"
-    nvidia4coreos_docker_image = "${var.nvidia4coreos_docker_image}"
+    spark_docker_image    = "${var.spark_docker_image}"
+    master_private_ip     = "${element(module.master.local_ip_list,0)}"
+    nvidia_driver_version = "${var.nvidia_driver_version}"
   }
 }
 
@@ -55,7 +55,7 @@ module "workers" {
   name_prefix        = "${var.cluster_prefix}-worker"
   count              = "${var.workers_count}"
   flavor_name        = "${var.worker_flavor_name}"
-  image_name         = "${var.image_name}"
+  image_name         = "${var.coreos_image_name}"
   keypair_name       = "${module.keypair.keypair_name}"
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
@@ -65,7 +65,7 @@ module "workers" {
 }
 
 # wait for master bootstrap
-resource "null_resource" "cluster" {
+resource "null_resource" "wait_bootstrap" {
   triggers {
     cluster_instance_ids = "${join(",", module.master.node_id_list)}"
   }

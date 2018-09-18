@@ -20,7 +20,7 @@ Terraform module to deploy [Apache Spark](https://spark.apache.org/) on [OpenSta
 On your workstation you need to:
 
 - Install [Terraform](https://www.terraform.io/)
-- Set up the environmet by sourcing the OpenStack RC file for your project 
+- Set up the environmet by sourcing the OpenStack RC file for your project
 
 On your OpenStack project you need to:
 
@@ -45,7 +45,7 @@ module "spark" {
   public_key="" # Path to a public SSH key
   external_net_uuid="" # External network UUID
   floating_ip_pool="" # Floating IP pool name
-  image_name="" # Name of a CoreOS Container-Linux image in your project
+  coreos_image_name="" # Name of a CoreOS Container-Linux image in your project
   master_flavor_name="" # Flavor name to be used for the master node
   worker_flavor_name="" # Flavor name to be user for the worker nodes
   workers_count=3 # Number of worker nodes to deploy

@@ -15,8 +15,8 @@ variable floating_ip_pool {
   description = "Name of the floating IP pool (often same as the external network name)"
 }
 
-variable image_name {
-  description = "Image name to boot the nodes from"
+variable coreos_image_name {
+  description = "Name of a CoreOS Container-Linux image in your project (to boot the nodes from)"
 }
 
 variable master_flavor_name {
@@ -51,7 +51,7 @@ variable zeppelin_docker_image {
   default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
 }
 
-variable nvidia4coreos_docker_image {
-  description = "nvidia4coreos Docker image (more info: https://github.com/mcapuccini/nvidia4coreos)"
-  default     = "mcapuccini/nvidia4coreos:396.44-coreos-latest"
+variable nvidia_driver_version {
+  description = "NVIDIA driver version"
+  default     = "396.44"
 }
