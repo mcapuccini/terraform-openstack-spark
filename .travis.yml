@@ -12,21 +12,52 @@ branches:
 
 env:
   global:
+    # Software versions
     - TERRAFORM_VERSION=0.11.7
     - SHELLCHECK_VERSION=v0.4.6
     - SHFMT_VERSION=latest
     - YAMLLINT_VERSION=1.8.1
+    # OpenStack environment
+    - OS_AUTH_URL=https://extcloud05.ebi.ac.uk:13000/v3
+    - OS_PROJECT_ID=599a5ed79ef24064be8cdc1a7052a76e
+    - OS_PROJECT_NAME="PhenoMeNal-Mesos"
+    - OS_USER_DOMAIN_NAME="Default"
+    - OS_USERNAME="marco.capuccini@farmbio.uu.se"
+    - OS_REGION_NAME="regionOne"
+    - OS_IDENTITY_API_VERSION=3
+    - secure: >
+        Muy3Be4hUStC0fdSUcTm93nRKtwy7s7IbNDhM98H5LKegYresEOH4z4B2jwanMHvVEL1hRvTbL/Wf1
+        xKRW/TBcXmCNNTSYB3TfFVKa1v014NPnfgzyfMOEDP8lRQ4iqu06mMzzFNR9dTA6L4L6IM3KuWnf33
+        rM9E6tR5zrpcTuPRA/85orv0Pi2qEBDSgCw5j+YFbG7qM3oWbJO3ybJRmCna79MU8ChXrOwXe1Yn6F
+        BeZFSoODnvklkZYkBRy9HktsDD8ATHSo1zjaFQtEyN7CUe7O1DaybtoCGq2KFFzz6VO9gJPxWgruBe
+        /Diz+v/rv/T7+aGDWEc6fCri7XY6MxXdBpD2Ghi5rnv3jaFDq0eAFb+IBnRTrIt1B23fXoVhnauO8Z
+        aGF/mgOBXJNP7X30t93D42Ipe9KQ1tmkQY5mgFS1IiHRwf/0YPaKd/r6NPJc00hZjpKgfo04sy/22H
+        Gt9EuuIBKqfCTuIIRjPGjKKVZTNFL7zm7lRj7cw+Qp/p43w/2EKZp0Rm3A44/Hvbf3yc+mK/Pi8UKU
+        ShtKI0i+QQxay7v3PtEEksWW2efbdLJl+sDcM5ap7JUfM89dIKT0KR8ac2gFXl0htOYCjXHY73CMn1
+        w7y6FtxoKw/+LP+B2iTXq8FsWptnAMtoSOd1lMvwX4l6L5eaNIskxrf4Rcw=
+    # Test cluster configuration
+    - TF_VAR_public_key=ssh_key.pub
+    - TF_VAR_external_net_uuid=2d771d9c-f279-498f-8b8a-f5c6d83da6e8
+    - TF_VAR_floating_ip_pool=ext-net
+    - TF_VAR_coreos_image_name=Container-Linux
+    - TF_VAR_master_flavor_name=s1.small
+    - TF_VAR_worker_flavor_name=s1.small
+    - TF_VAR_workers_count=1
+    - TF_VAR_cluster_prefix=spark-ci-$TRAVIS_BUILD_NUMBER
 
 install:
+  # Pull deps
   - docker pull "hashicorp/terraform:$TERRAFORM_VERSION"
   - docker pull "koalaman/shellcheck:$SHELLCHECK_VERSION"
   - docker pull "jamesmstone/shfmt:$SHFMT_VERSION"
   - docker pull "boiyaa/yamllint:$YAMLLINT_VERSION"
+  # Generate SSH key
+  - ssh-keygen -t rsa -N '' -f ssh_key
 
-script:
+before_script:
   # Terraform init, validate, and format check
   - docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION" init
-  - docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION" validate -check-variables=false
+  - docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION" validate
   - docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION" fmt -check=true -diff
   # Check scripts
   - docker run -v "$PWD:/mnt" "koalaman/shellcheck:$SHELLCHECK_VERSION" bin/*
@@ -34,3 +65,29 @@ script:
   - git diff --exit-code
   # Check YAMLs
   - docker run -v "$PWD:/workdir" "boiyaa/yamllint:$YAMLLINT_VERSION" -c .yamllint.yml -s $(find . -type f -name '*.yml')
+
+script:
+  # Deploy
+  - >
+    docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION"
+    apply -auto-approve
+  # Open tunnels
+  - >
+    master_ip=$(docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION"
+    output master_public_ip)
+  - eval "$(ssh-agent -s)"
+  - ssh-add ssh_key
+  - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -N -f -L 8888:localhost:8888 core@$master_ip
+  - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -N -f -L 9999:localhost:9999 core@$master_ip
+  # Tests
+  - wget --retry-connrefused --tries=10 -qO- http://localhost:9999/healthz
+  - >
+    wget --retry-connrefused --tries=10 -qO- http://localhost:9999 |
+    grep "<li><strong>Alive Workers:</strong> $TF_VAR_workers_count</li>"
+  - wget --retry-connrefused --tries=10 -qO- http://localhost:8888/api/interpreter
+
+after_script:
+  # Destroy
+  - >
+    docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION"
+    destroy -force
