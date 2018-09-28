@@ -1,0 +1,19 @@
+[Unit]
+Description=nvidia4coreos
+After=docker.service
+Requires=docker.service
+[Service]
+TimeoutStartSec=20m
+EnvironmentFile=/etc/os-release
+ExecStartPre=-/usr/bin/docker rm nvidia4coreos
+ExecStartPre=-/sbin/rmmod nvidia_uvm nvidia
+ExecStartPre=/usr/bin/docker run --privileged \
+                                 --volume /:/hostfs \
+                                 --name nvidia4coreos \
+                                 "mcapuccini/nvidia4coreos:${nvidia_driver_version}-coreos-$${VERSION}" \
+                                 /insert.sh
+ExecStart=/usr/bin/sleep infinity
+ExecStop=/usr/bin/docker rm nvidia4coreos
+ExecStop=-/sbin/rmmod nvidia_uvm nvidia
+[Install]
+WantedBy=multi-user.target

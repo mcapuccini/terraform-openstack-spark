@@ -1,9 +1,3 @@
-module "keypair" {
-  source      = "modules/os-keypair"
-  name_prefix = "${var.cluster_prefix}"
-  public_key  = "${var.public_key}"
-}
-
 module "network" {
   source            = "modules/os-network"
   name_prefix       = "${var.cluster_prefix}"
@@ -15,15 +9,13 @@ module "secgroup" {
   name_prefix = "${var.cluster_prefix}"
 }
 
-data "template_file" "master_bootstrap" {
-  template = "${file("${path.module}/bin/bootstrap-master.sh")}"
-
-  vars {
-    spark_docker_image    = "${var.spark_docker_image}"
-    spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
-    zeppelin_docker_image = "${var.zeppelin_docker_image}"
-    nvidia_driver_version = "${var.nvidia_driver_version}"
-  }
+module "master_ignition" {
+  source                = "modules/ignition-master"
+  spark_docker_image    = "${var.spark_docker_image}"
+  spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
+  zeppelin_docker_image = "${var.zeppelin_docker_image}"
+  nvidia_driver_version = "${var.nvidia_driver_version}"
+  public_key            = "${var.public_key}"
 }
 
 module "master" {
@@ -32,22 +24,19 @@ module "master" {
   count              = "1"
   flavor_name        = "${var.master_flavor_name}"
   image_name         = "${var.coreos_image_name}"
-  keypair_name       = "${module.keypair.keypair_name}"
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
-  bootstrap_script   = "${data.template_file.master_bootstrap.rendered}"
+  bootstrap_script   = "${module.master_ignition.user_data}"
 }
 
-data "template_file" "worker_bootstrap" {
-  template = "${file("${path.module}/bin/bootstrap-worker.sh")}"
-
-  vars {
-    spark_docker_image    = "${var.spark_docker_image}"
-    master_private_ip     = "${element(module.master.local_ip_list,0)}"
-    nvidia_driver_version = "${var.nvidia_driver_version}"
-  }
+module "worker_ignition" {
+  source                = "modules/ignition-worker"
+  spark_docker_image    = "${var.spark_docker_image}"
+  master_private_ip     = "${element(module.master.local_ip_list,0)}"
+  nvidia_driver_version = "${var.nvidia_driver_version}"
+  public_key            = "${var.public_key}"
 }
 
 module "workers" {
@@ -56,16 +45,15 @@ module "workers" {
   count              = "${var.workers_count}"
   flavor_name        = "${var.worker_flavor_name}"
   image_name         = "${var.coreos_image_name}"
-  keypair_name       = "${module.keypair.keypair_name}"
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "${var.workers_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
-  bootstrap_script   = "${data.template_file.worker_bootstrap.rendered}"
+  bootstrap_script   = "${module.worker_ignition.user_data}"
 }
 
 # wait for master bootstrap
-resource "null_resource" "wait_bootstrap" {
+resource "null_resource" "wait_master_ready" {
   triggers {
     cluster_instance_ids = "${join(",", module.master.node_id_list)}"
   }
@@ -78,7 +66,16 @@ resource "null_resource" "wait_bootstrap" {
 
   provisioner "remote-exec" {
     inline = [
-      "while [ ! -f /tmp/bootstrap-signal ]; do sleep 2; done",
+      "while ! (systemctl is-failed -q docker || systemctl is-active -q docker); do sleep 2; done",
+      "if systemctl is-failed -q docker; then exit 1; fi",
+      "while ! (systemctl is-failed -q nvidia4coreos || docker ps -a | grep -q nvidia4coreos); do sleep 2; done",
+      "if systemctl is-failed -q nvidia4coreos; then exit 1; fi",
+      "while ! (systemctl is-failed -q spark-ui-proxy || docker ps -a | grep -q spark-ui-proxy); do sleep 2; done",
+      "if systemctl is-failed -q spark-ui-proxy; then exit 1; fi",
+      "while ! (systemctl is-failed -q spark-master || docker ps -a | grep -q spark-master); do sleep 2; done",
+      "if systemctl is-failed -q spark-master; then exit 1; fi",
+      "while ! (systemctl is-failed -q zeppelin || docker ps -a | grep -q zeppelin); do sleep 2; done",
+      "if systemctl is-failed -q zeppelin; then exit 1; fi",
     ]
   }
 }

@@ -1,0 +1,26 @@
+[Unit]
+Description=zeppelin
+After=nvidia4coreos.service
+Requires=nvidia4coreos.service
+[Service]
+Restart=always
+TimeoutStartSec=20m
+ExecStartPre=-/usr/bin/docker rm zeppelin
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+                        --volume /var/run/docker.sock:/var/run/docker.sock \
+                        --volume /var/zeppelin-notebooks:/notebooks \
+                        --net=host \
+                        --add-host $(hostname):127.0.0.1 \
+                        --env MASTER=spark://$(ifconfig eth0 | awk '/inet / {print $2}'):7077 \
+                        --env ZEPPELIN_PORT=8888 \
+                        --env ZEPPELIN_NOTEBOOK_DIR=/notebooks \
+                        --volumes-from nvidia4coreos \
+                        --name zeppelin \
+                        $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \
+                        ${zeppelin_docker_image} \
+                        sh -c 'export PATH=$PATH:/opt/nvidia/bin/; \
+                        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib; \
+                        $Z_HOME/bin/zeppelin.sh'"
+ExecStop=/usr/bin/docker stop zeppelin
+[Install]
+WantedBy=multi-user.target

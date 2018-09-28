@@ -19,10 +19,6 @@ variable image_name {
   description = "Image name to boot this node from"
 }
 
-variable keypair_name {
-  description = "Name of the keypair to inject into this node"
-}
-
 variable network_name {
   description = "Name of the network to attach this node to"
 }

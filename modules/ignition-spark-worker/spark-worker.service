@@ -1,0 +1,23 @@
+[Unit]
+Description=spark-worker
+After=nvidia4coreos.service
+Requires=nvidia4coreos.service
+[Service]
+Restart=always
+TimeoutStartSec=20m
+ExecStartPre=-/usr/bin/docker rm spark-worker
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+                        --volume /var/run/docker.sock:/var/run/docker.sock \
+                        --env SPARK_MASTER_HOST=$(ifconfig eth0 | awk '/inet / {print $2}') \
+                        --network host \
+                        --add-host $(hostname):127.0.0.1 \
+                        --volumes-from nvidia4coreos \
+                        --name spark-worker \
+                        $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \
+                        ${spark_docker_image} \
+                        sh -c 'export PATH=$PATH:/opt/nvidia/bin/; \
+                        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib; \
+                        $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker spark://${master_private_ip}:7077'"
+ExecStop=/usr/bin/docker stop spark-worker
+[Install]
+WantedBy=multi-user.target

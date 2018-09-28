@@ -1,0 +1,16 @@
+[Unit]
+Description=spark-ui-proxy
+After=docker.service
+Requires=docker.service
+[Service]
+Restart=always
+TimeoutStartSec=20m
+ExecStartPre=-/usr/bin/docker rm spark-ui-proxy
+ExecStartPre=/usr/bin/docker build -t local/spark-ui-proxy ${spark-ui-proxy_repo}
+ExecStart=/usr/bin/docker run --network host \
+                              --name spark-ui-proxy \
+                              local/spark-ui-proxy \
+                              localhost:8080 9999
+ExecStop=/usr/bin/docker stop spark-ui-proxy
+[Install]
+WantedBy=multi-user.target
