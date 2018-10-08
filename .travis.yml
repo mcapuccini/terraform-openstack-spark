@@ -13,7 +13,7 @@ branches:
 env:
   global:
     # Software versions
-    - TERRAFORM_VERSION=0.11.7
+    - TERRAFORM_VERSION=0.11.8
     - YAMLLINT_VERSION=1.8.1
     # OpenStack environment
     - OS_AUTH_URL=https://extcloud05.ebi.ac.uk:13000/v3
