@@ -1,0 +1,23 @@
+[Unit]
+Description=hdfs-namenode
+After=hdfs-namenode-fmt
+Requires=hdfs-namenode-fmt
+[Service]
+Restart=always
+TimeoutStartSec=20m
+ExecStartPre=-/usr/bin/docker rm hdfs-namenode
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+                        --network host \
+                        --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
+                        --name hdfs-namenode \
+                        --volume /var/hdfs-namenode-data:/var/hdfs-namenode-data \
+                        --volume /etc/hadoop/:/etc/hadoop \
+                        --env HADOOP_CONF_DIR=/etc/hadoop \
+                        ${hdfs_docker_image} \
+                        sh -c '$HADOOP_HOME/bin/hdfs namenode \
+                           -Ddfs.namenode.datanode.registration.ip-hostname-check=false \
+                           -Dfs.defaultFS=hdfs://$(hostname) \
+                           -Ddfs.namenode.name.dir=/var/hdfs-namenode-data'"
+ExecStop=/usr/bin/docker stop hdfs-namenode
+[Install]
+WantedBy=multi-user.target

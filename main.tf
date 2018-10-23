@@ -11,11 +11,15 @@ module "secgroup" {
 
 module "master_ignition" {
   source                = "modules/ignition-master"
+  hostname              = "${var.cluster_prefix}-master"
   spark_docker_image    = "${var.spark_docker_image}"
+  hdfs_docker_image     = "${var.hdfs_docker_image}"
   spark-ui-proxy_repo   = "${var.spark-ui-proxy_repo}"
   zeppelin_docker_image = "${var.zeppelin_docker_image}"
   nvidia_driver_version = "${var.nvidia_driver_version}"
   public_key            = "${var.public_key}"
+  core_site_xml         = "${var.core_site_xml}"
+  hdfs_site_xml         = "${var.hdfs_site_xml}"
 }
 
 module "master" {
@@ -33,10 +37,17 @@ module "master" {
 
 module "worker_ignition" {
   source                = "modules/ignition-worker"
+  count                 = "${var.workers_count}"
+  hostname              = "${var.cluster_prefix}-worker"
   spark_docker_image    = "${var.spark_docker_image}"
+  hdfs_docker_image     = "${var.hdfs_docker_image}"
   master_private_ip     = "${element(module.master.local_ip_list,0)}"
+  master_hostname       = "${element(module.master.hostnames,0)}"
   nvidia_driver_version = "${var.nvidia_driver_version}"
   public_key            = "${var.public_key}"
+  core_site_xml         = "${var.core_site_xml}"
+  hdfs_site_xml         = "${var.hdfs_site_xml}"
+  extra-disk_device     = "${var.worker_volume_device}"
 }
 
 module "workers" {
@@ -50,6 +61,7 @@ module "workers" {
   assign_floating_ip = "${var.workers_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
   bootstrap_script   = "${module.worker_ignition.user_data}"
+  extra_disk_size    = "${var.worker_volume_size}"
 }
 
 # wait for master bootstrap
@@ -76,6 +88,8 @@ resource "null_resource" "wait_master_ready" {
       "if systemctl is-failed -q spark-master; then exit 1; fi",
       "while ! (systemctl is-failed -q zeppelin || docker ps -a | grep -q zeppelin); do sleep 2; done",
       "if systemctl is-failed -q zeppelin; then exit 1; fi",
+      "while ! (systemctl is-failed -q hdfs-namenode || docker ps -a | grep -q hdfs-namenode); do sleep 2; done",
+      "if systemctl is-failed -q hdfs-namenode; then exit 1; fi",
     ]
   }
 }

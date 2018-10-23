@@ -9,11 +9,13 @@ ExecStartPre=-/usr/bin/docker rm zeppelin
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /var/run/docker.sock:/var/run/docker.sock \
                         --volume /var/zeppelin-notebooks:/notebooks \
+                        --volume /etc/hadoop/:/etc/hadoop \
                         --net=host \
-                        --add-host $(hostname):127.0.0.1 \
-                        --env MASTER=spark://$(ifconfig eth0 | awk '/inet / {print $2}'):7077 \
+                        --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
+                        --env MASTER=spark://$(hostname):7077 \
                         --env ZEPPELIN_PORT=8888 \
                         --env ZEPPELIN_NOTEBOOK_DIR=/notebooks \
+                        --env HADOOP_CONF_DIR=/etc/hadoop \
                         --volumes-from nvidia4coreos \
                         --name zeppelin \
                         $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \

@@ -5,8 +5,24 @@ module "user" {
 }
 
 # Files
+module "hostname" {
+  source   = "../ignition-hostname"
+  count    = "1"
+  hostname = "${var.hostname}"
+}
+
 module "updates" {
   source = "../ignition-updates"
+}
+
+module "core_site_xml" {
+  source        = "../ignition-core-site"
+  core_site_xml = "${var.core_site_xml}"
+}
+
+module "hdfs_site_xml" {
+  source        = "../ignition-hdfs-site"
+  hdfs_site_xml = "${var.hdfs_site_xml}"
 }
 
 # Services
@@ -30,6 +46,16 @@ module "zeppelin" {
   zeppelin_docker_image = "${var.zeppelin_docker_image}"
 }
 
+module "hdfs-namenode-fmt" {
+  source            = "../ignition-hdfs-namenode-fmt"
+  hdfs_docker_image = "${var.hdfs_docker_image}"
+}
+
+module "hdfs-namenode" {
+  source            = "../ignition-hdfs-namenode"
+  hdfs_docker_image = "${var.hdfs_docker_image}"
+}
+
 # Config
 data "ignition_config" "bootstrap_config" {
   users = [
@@ -37,7 +63,10 @@ data "ignition_config" "bootstrap_config" {
   ]
 
   files = [
+    "${element(module.hostname.id,0)}",
     "${module.updates.id}",
+    "${module.core_site_xml.id}",
+    "${module.hdfs_site_xml.id}",
   ]
 
   systemd = [
@@ -45,5 +74,7 @@ data "ignition_config" "bootstrap_config" {
     "${module.spark-master.id}",
     "${module.spark-ui-proxy.id}",
     "${module.zeppelin.id}",
+    "${module.hdfs-namenode.id}",
+    "${module.hdfs-namenode-fmt.id}",
   ]
 }

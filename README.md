@@ -5,6 +5,7 @@
 Terraform module to deploy [Apache Spark](https://spark.apache.org/) on [OpenStack](https://www.openstack.org/). By deploying this module you will get:
 
 - A standalone [Apache Spark](https://spark.apache.org/) cluster up and running
+- A co-located [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html) file system
 - [Apache Zeppelin](https://zeppelin.apache.org/) for interactive analysis
 - [Tensorflow](https://www.tensorflow.org/) dependencies on each node
 - [NVIDIA](https://www.nvidia.com/) GPU drivers on each node
@@ -48,6 +49,7 @@ module "spark" {
   coreos_image_name="" # Name of a CoreOS Container-Linux image in your project
   master_flavor_name="" # Flavor name to be used for the master node
   worker_flavor_name="" # Flavor name to be user for the worker nodes
+  worker_volume_size="" # Worker block storage volume size in GB (used as HDFS data directory)
   workers_count=3 # Number of worker nodes to deploy
 }
 ```

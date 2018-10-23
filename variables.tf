@@ -28,6 +28,11 @@ variable spark_docker_image {
   default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
 }
 
+variable hdfs_docker_image {
+  description = "HDFS Docker image"
+  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
+}
+
 variable spark-ui-proxy_repo {
   description = "spark-ui-proxy Git repository"
   default     = "https://github.com/aseigneurin/spark-ui-proxy.git"
@@ -46,6 +51,15 @@ variable workers_floating_ip {
   default     = false
 }
 
+variable worker_volume_size {
+  description = "Worker block storage volume size in GB (used as HDFS data directory)"
+}
+
+variable worker_volume_device {
+  description = "Worker volume device path"
+  default     = "/dev/vdb"
+}
+
 variable zeppelin_docker_image {
   description = "Apache Zeppelin Docker image"
   default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
@@ -54,4 +68,22 @@ variable zeppelin_docker_image {
 variable nvidia_driver_version {
   description = "NVIDIA driver version"
   default     = "396.44"
+}
+
+variable "core_site_xml" {
+  description = "Hadoop core-site.xml"
+
+  default = <<EOF
+<configuration>
+</configuration>
+EOF
+}
+
+variable "hdfs_site_xml" {
+  description = "Hadoop hdfs-site.xml"
+
+  default = <<EOF
+<configuration>
+</configuration>
+EOF
 }

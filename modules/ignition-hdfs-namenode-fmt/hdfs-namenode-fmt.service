@@ -1,0 +1,24 @@
+[Unit]
+Description=hdfs-namenode-fmt
+After=docker.service
+Requires=docker.service
+[Service]
+Type=oneshot
+TimeoutStartSec=20m
+ExecStartPre=-/usr/bin/docker rm hdfs-namenode-fmt
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+                        --volume /var/hdfs-namenode-data:/var/hdfs-namenode-data \
+                        --volume /etc/hadoop/:/etc/hadoop \
+                        --env HADOOP_CONF_DIR=/etc/hadoop \
+                        --name hdfs-namenode-fmt \
+                        ${hdfs_docker_image} \
+                        sh -c '$HADOOP_HOME/bin/hdfs namenode \
+                           -Dfs.defaultFS=hdfs://$(hostname) \
+                           -Ddfs.namenode.name.dir=/var/hdfs-namenode-data \
+                           -format \
+                           -nonInteractive \
+                           -force'"
+RemainAfterExit=true
+ConditionFirstBoot=true
+[Install]
+WantedBy=multi-user.target

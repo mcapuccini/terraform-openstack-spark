@@ -5,3 +5,7 @@ variable spark_docker_image {
 variable master_private_ip {
   description = "Spark master private IP address"
 }
+
+variable master_hostname {
+  description = "Spark master hostname"
+}

@@ -42,6 +42,7 @@ env:
     - TF_VAR_worker_flavor_name=s1.small
     - TF_VAR_workers_count=1
     - TF_VAR_cluster_prefix=spark-ci-$TRAVIS_BUILD_NUMBER
+    - TF_VAR_worker_volume_size=10
 
 install:
   # Pull deps
@@ -79,7 +80,10 @@ script:
   - curl -L http://localhost:9999 |
     grep "<li><strong>Alive Workers:</strong> $TF_VAR_workers_count</li>"
   - curl http://localhost:8888/api/interpreter
-
+  - >
+    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no core@$master_ip
+    "docker exec hdfs-namenode hdfs dfsadmin -Dfs.defaultFS=hdfs://${TF_VAR_cluster_prefix}-master-000 -report" |
+    grep "Live datanodes ($TF_VAR_workers_count)"
 after_script:
   # Destroy
   - >
