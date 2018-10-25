@@ -10,7 +10,7 @@ resource "openstack_compute_instance_v2" "instance" {
   }
 
   security_groups = ["${var.secgroup_name}"]
-  user_data       = "${var.bootstrap_script}"
+  user_data       = "${element(var.user_data_list,count.index)}"
 }
 
 # Allocate floating IPs (optional)

@@ -32,7 +32,7 @@ module "master" {
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
-  bootstrap_script   = "${module.master_ignition.user_data}"
+  user_data_list     = ["${module.master_ignition.user_data}"]
 }
 
 module "worker_ignition" {
@@ -60,7 +60,7 @@ module "workers" {
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "${var.workers_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
-  bootstrap_script   = "${module.worker_ignition.user_data}"
+  user_data_list     = "${module.worker_ignition.user_data_list}"
   extra_disk_size    = "${var.worker_volume_size}"
 }
 

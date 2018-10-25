@@ -53,6 +53,8 @@ module "extra-disk" {
 
 # Config
 data "ignition_config" "bootstrap_config" {
+  count = "${var.count}"
+
   users = [
     "${module.user.id}",
   ]

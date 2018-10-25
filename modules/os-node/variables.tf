@@ -42,6 +42,7 @@ variable extra_disk_size {
   default     = 0
 }
 
-variable bootstrap_script {
-  description = "Script to be executed at boot time (cloud-init user-data)"
+variable user_data_list {
+  type        = "list"
+  description = "List of user-data to be passed to the nodes (one per node)"
 }
