@@ -8,6 +8,7 @@ TimeoutStartSec=20m
 ExecStartPre=-/usr/bin/docker rm zeppelin
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /var/run/docker.sock:/var/run/docker.sock \
+                        --volume /tmp:/tmp \
                         --volume /var/zeppelin-notebooks:/notebooks \
                         --volume /etc/hadoop/:/etc/hadoop \
                         --net=host \
