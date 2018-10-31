@@ -25,12 +25,12 @@ variable master_flavor_name {
 
 variable spark_docker_image {
   description = "Spark Docker image"
-  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
+  default     = "mcapuccini/spark-tensorflow:latest"
 }
 
 variable hdfs_docker_image {
   description = "HDFS Docker image"
-  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
+  default     = "mcapuccini/spark-tensorflow:latest"
 }
 
 variable spark-ui-proxy_repo {
@@ -62,7 +62,7 @@ variable worker_volume_device {
 
 variable zeppelin_docker_image {
   description = "Apache Zeppelin Docker image"
-  default     = "mcapuccini/spark-tensorflow:spk-2.1.3-tf-1.10.0-gpu-py3-zpl-0.7.3-hdp-2.7.6"
+  default     = "mcapuccini/spark-tensorflow:latest"
 }
 
 variable nvidia_driver_version {
