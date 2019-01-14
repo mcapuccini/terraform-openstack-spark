@@ -64,8 +64,9 @@ module "workers" {
   extra_disk_size    = "${var.worker_volume_size}"
 }
 
-# wait for master bootstrap
-resource "null_resource" "wait_master_ready" {
+# SSH provisioners
+# Master
+resource "null_resource" "ssh-master" {
   triggers {
     cluster_instance_ids = "${join(",", module.master.node_id_list)}"
   }
@@ -76,8 +77,10 @@ resource "null_resource" "wait_master_ready" {
     private_key = "${file(replace(var.public_key,".pub",""))}"
   }
 
+  # Populate /etc/hosts and wait for master to be ready
   provisioner "remote-exec" {
     inline = [
+      "echo '${join("\n",concat(module.master.etc_hosts_entries,module.workers.etc_hosts_entries))}' | sudo tee -a /etc/hosts",
       "while ! (systemctl is-failed -q docker || systemctl is-active -q docker); do sleep 2; done",
       "if systemctl is-failed -q docker; then exit 1; fi",
       "while ! (systemctl is-failed -q nvidia4coreos || docker ps -a | grep -q nvidia4coreos); do sleep 2; done",
@@ -90,6 +93,29 @@ resource "null_resource" "wait_master_ready" {
       "if systemctl is-failed -q zeppelin; then exit 1; fi",
       "while ! (systemctl is-failed -q hdfs-namenode || docker ps -a | grep -q hdfs-namenode); do sleep 2; done",
       "if systemctl is-failed -q hdfs-namenode; then exit 1; fi",
+    ]
+  }
+}
+
+# Workers
+resource "null_resource" "ssh-workers" {
+  count = "${var.workers_count}"
+
+  triggers {
+    cluster_instance_ids = "${join(",", concat(module.master.node_id_list, module.workers.node_id_list))}"
+  }
+
+  connection {
+    host             = "${element(module.workers.local_ip_list,count.index)}"
+    user             = "core"
+    bastion_host_key = "${file(replace(var.public_key,".pub",""))}"
+    bastion_host     = "${element(module.master.public_ip_list,0)}"
+  }
+
+  # Populate /etc/hosts
+  provisioner "remote-exec" {
+    inline = [
+      "echo '${join("\n",concat(module.master.etc_hosts_entries,module.workers.etc_hosts_entries))}' | sudo tee -a /etc/hosts",
     ]
   }
 }

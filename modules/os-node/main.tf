@@ -39,3 +39,14 @@ resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
   instance_id = "${element(openstack_compute_instance_v2.instance.*.id, count.index)}"
   volume_id   = "${element(openstack_blockstorage_volume_v2.extra_disk.*.id, count.index)}"
 }
+
+# Generate /etc/hosts entry
+data "template_file" "etc_hosts_entries" {
+  count    = "${var.count}"
+  template = "$${address} $${host}"
+
+  vars {
+    address = "${element(openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4, count.index)}"
+    host    = "${element(openstack_compute_instance_v2.instance.*.name, count.index)}"
+  }
+}

@@ -47,31 +47,33 @@ env:
     - TF_VAR_worker_volume_size=10
 
 install:
-  # Pull deps
-  - docker pull "hashicorp/terraform:$TERRAFORM_VERSION"
+  # Install Terraform
+  - >
+    travis_retry curl -L
+    "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+    -o /tmp/terraform.zip
+  - sudo unzip /tmp/terraform.zip -d /usr/bin
+  - sudo chmod +x /usr/bin/terraform
+  # Pull Docker deps
   - docker pull "boiyaa/yamllint:$YAMLLINT_VERSION"
   # Generate SSH key
   - ssh-keygen -t rsa -N '' -f ssh_key
+  - eval "$(ssh-agent -s)"
+  - ssh-add ssh_key
 
 before_script:
   # Terraform init, validate, and format check
-  - docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION" init
-  - docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION" validate
-  - docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION" fmt -check=true -diff
-  # Check scripts
-  - git diff --exit-code
+  - terraform init
+  - terraform validate
+  - terraform fmt -check=true -diff
   # Check YAMLs
   - docker run -v "$PWD:/workdir" "boiyaa/yamllint:$YAMLLINT_VERSION" -c .yamllint.yml -s $(find . -type f -name '*.yml')
 
 script:
   # Deploy
-  - >
-    docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION"
-    apply -auto-approve
+  - terraform apply -auto-approve
   # Open tunnels
-  - >
-    master_ip=$(docker run -v "$PWD:/hostdir" -w /hostdir "hashicorp/terraform:$TERRAFORM_VERSION"
-    output master_public_ip)
+  - master_ip=$(terraform output master_public_ip)
   - eval "$(ssh-agent -s)"
   - ssh-add ssh_key
   - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -N -f -L 8888:localhost:8888 core@$master_ip
@@ -88,6 +90,4 @@ script:
     grep "Live datanodes ($TF_VAR_workers_count)"
 after_script:
   # Destroy
-  - >
-    docker run -v "$PWD:/hostdir" -w /hostdir --env-file <(env) "hashicorp/terraform:$TERRAFORM_VERSION"
-    destroy -force
+  - terraform destroy -force

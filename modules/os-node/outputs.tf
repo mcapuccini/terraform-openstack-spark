@@ -22,3 +22,8 @@ output "node_id_list" {
   description = "List of ids (one per node)"
   value       = ["${openstack_compute_instance_v2.instance.*.id}"]
 }
+
+output "etc_hosts_entries" {
+  description = "Entries for /etc/hosts (one per node)"
+  value       = ["${data.template_file.etc_hosts_entries.*.rendered}"]
+}
