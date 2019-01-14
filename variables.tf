@@ -87,3 +87,12 @@ variable "hdfs_site_xml" {
 </configuration>
 EOF
 }
+
+variable "zeppelin_site_xml" {
+  description = "Zeppelin zeppelin-site.xml"
+
+  default = <<EOF
+<configuration>
+</configuration>
+EOF
+}

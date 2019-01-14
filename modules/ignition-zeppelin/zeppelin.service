@@ -11,6 +11,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /tmp:/tmp \
                         --volume /var/zeppelin-notebooks:/notebooks \
                         --volume /etc/hadoop/:/etc/hadoop \
+                        --volume /etc/zeppelin/zeppelin-site.xml:/tmp/zeppelin-site.xml \
                         --net=host \
                         --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
                         --env MASTER=spark://$(hostname):7077 \
@@ -23,6 +24,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         ${zeppelin_docker_image} \
                         sh -c 'export PATH=$PATH:/opt/nvidia/bin/; \
                         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/lib; \
+                        cp /tmp/zeppelin-site.xml $Z_HOME/conf/zeppelin-site.xml; \
                         $Z_HOME/bin/zeppelin.sh'"
 ExecStop=/usr/bin/docker stop zeppelin
 [Install]

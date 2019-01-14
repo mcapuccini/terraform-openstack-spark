@@ -33,3 +33,7 @@ variable "core_site_xml" {
 variable "hdfs_site_xml" {
   description = "Hadoop hdfs-site.xml"
 }
+
+variable "zeppelin_site_xml" {
+  description = "Zeppelin zeppelin-site.xml"
+}

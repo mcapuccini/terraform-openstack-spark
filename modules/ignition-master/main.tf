@@ -25,6 +25,11 @@ module "hdfs_site_xml" {
   hdfs_site_xml = "${var.hdfs_site_xml}"
 }
 
+module "zeppelin_site_xml" {
+  source            = "../ignition-zeppelin-site"
+  zeppelin_site_xml = "${var.zeppelin_site_xml}"
+}
+
 # Services
 module "nvidia4coreos" {
   source                = "../ignition-nvidia4coreos"
@@ -67,6 +72,7 @@ data "ignition_config" "bootstrap_config" {
     "${module.updates.id}",
     "${module.core_site_xml.id}",
     "${module.hdfs_site_xml.id}",
+    "${module.zeppelin_site_xml.id}",
   ]
 
   systemd = [
