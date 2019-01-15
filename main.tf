@@ -20,7 +20,7 @@ module "master_ignition" {
   public_key            = "${var.public_key}"
   core_site_xml         = "${var.core_site_xml}"
   hdfs_site_xml         = "${var.hdfs_site_xml}"
-  zeppelin_site_xml     = "${var.hdfs_site_xml}"
+  zeppelin_site_xml     = "${var.zeppelin_site_xml}"
 }
 
 module "master" {

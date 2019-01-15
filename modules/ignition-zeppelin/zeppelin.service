@@ -16,7 +16,6 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
                         --env MASTER=spark://$(hostname):7077 \
                         --env ZEPPELIN_PORT=8888 \
-                        --env ZEPPELIN_NOTEBOOK_DIR=/notebooks \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
                         --volumes-from nvidia4coreos \
                         --name zeppelin \

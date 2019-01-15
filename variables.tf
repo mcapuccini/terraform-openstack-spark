@@ -93,6 +93,13 @@ variable "zeppelin_site_xml" {
 
   default = <<EOF
 <configuration>
+  <property>
+    <name>zeppelin.notebook.dir</name>
+    <value>/notebooks</value>
+    <description>
+    The path "/notebook" is inside a container, and it is mapped to "/var/zeppelin-notebooks".
+    </description>
+  </property>
 </configuration>
 EOF
 }
