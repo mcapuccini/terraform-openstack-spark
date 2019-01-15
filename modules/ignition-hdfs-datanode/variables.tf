@@ -5,7 +5,3 @@ variable hdfs_docker_image {
 variable hdfs_namenode_hostname {
   description = "Hostname of the HDFS NameNode"
 }
-
-variable hdfs_namenode_address {
-  description = "Address of the HDFS NameNode"
-}

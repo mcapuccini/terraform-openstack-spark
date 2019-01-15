@@ -11,10 +11,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /tmp:/tmp \
                         --volume /etc/hadoop/:/etc/hadoop \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
-                        --env SPARK_PUBLIC_DNS=$(ifconfig eth0 | awk '/inet / {print $2}') \
                         --network host \
-                        --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
-                        --add-host ${master_hostname}:${master_private_ip} \
                         --volumes-from nvidia4coreos \
                         --name spark-worker \
                         $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \

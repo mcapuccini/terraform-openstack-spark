@@ -3,7 +3,6 @@ data "template_file" "spark-worker" {
 
   vars {
     spark_docker_image = "${var.spark_docker_image}"
-    master_private_ip  = "${var.master_private_ip}"
     master_hostname    = "${var.master_hostname}"
   }
 }

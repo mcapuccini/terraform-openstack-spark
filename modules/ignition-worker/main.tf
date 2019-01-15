@@ -34,7 +34,6 @@ module "nvidia4coreos" {
 module "spark-worker" {
   source             = "../ignition-spark-worker"
   spark_docker_image = "${var.spark_docker_image}"
-  master_private_ip  = "${var.master_private_ip}"
   master_hostname    = "${var.master_hostname}"
 }
 
@@ -42,7 +41,6 @@ module "hdfs-datanode" {
   source                 = "../ignition-hdfs-datanode"
   hdfs_docker_image      = "${var.hdfs_docker_image}"
   hdfs_namenode_hostname = "${var.master_hostname}"
-  hdfs_namenode_address  = "${var.master_private_ip}"
 }
 
 # Extra disk
