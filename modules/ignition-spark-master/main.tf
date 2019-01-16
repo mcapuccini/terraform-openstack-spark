@@ -8,6 +8,6 @@ data "template_file" "spark-master" {
 
 data "ignition_systemd_unit" "spark-master" {
   name    = "spark-master.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.spark-master.rendered}"
 }

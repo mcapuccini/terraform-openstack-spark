@@ -9,6 +9,6 @@ data "template_file" "spark-worker" {
 
 data "ignition_systemd_unit" "spark-worker" {
   name    = "spark-worker.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.spark-worker.rendered}"
 }

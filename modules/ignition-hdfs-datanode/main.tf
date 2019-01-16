@@ -9,6 +9,6 @@ data "template_file" "hdfs-datanode" {
 
 data "ignition_systemd_unit" "hdfs-datanode" {
   name    = "hdfs-datanode.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.hdfs-datanode.rendered}"
 }

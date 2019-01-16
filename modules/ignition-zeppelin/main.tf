@@ -8,6 +8,6 @@ data "template_file" "zeppelin" {
 
 data "ignition_systemd_unit" "zeppelin" {
   name    = "zeppelin.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.zeppelin.rendered}"
 }
