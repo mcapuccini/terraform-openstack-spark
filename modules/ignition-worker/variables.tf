@@ -18,12 +18,8 @@ variable hdfs_docker_image {
   description = "HDFS Docker image"
 }
 
-variable master_private_ip {
-  description = "Master private IP address"
-}
-
 variable master_hostname {
-  description = "Master hostname IP address"
+  description = "Master hostname address"
 }
 
 variable public_key {

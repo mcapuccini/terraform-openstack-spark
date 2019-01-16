@@ -42,7 +42,6 @@ module "worker_ignition" {
   hostname              = "${var.cluster_prefix}-worker"
   spark_docker_image    = "${var.spark_docker_image}"
   hdfs_docker_image     = "${var.hdfs_docker_image}"
-  master_private_ip     = "${element(module.master.local_ip_list,0)}"
   master_hostname       = "${element(module.master.hostnames,0)}"
   nvidia_driver_version = "${var.nvidia_driver_version}"
   public_key            = "${var.public_key}"

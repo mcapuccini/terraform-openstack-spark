@@ -8,8 +8,6 @@ TimeoutStartSec=20m
 ExecStartPre=-/usr/bin/docker rm hdfs-datanode
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --network host \
-                        --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
-                        --add-host ${hdfs_namenode_hostname}:${hdfs_namenode_address} \
                         --volume /media/disk/hdfs-data:/media/disk/hdfs-data \
                         --volume /etc/hadoop/:/etc/hadoop \
                         --env HADOOP_CONF_DIR=/etc/hadoop \

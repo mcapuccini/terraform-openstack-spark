@@ -13,7 +13,6 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
                         --env SPARK_MASTER_HOST=$(hostname) \
                         --network host \
-                        --add-host $(hostname):$(ifconfig eth0 | awk '/inet / {print $2}') \
                         --volumes-from nvidia4coreos \
                         --name spark-master \
                         $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \
