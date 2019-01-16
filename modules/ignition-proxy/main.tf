@@ -8,6 +8,6 @@ data "template_file" "spark-ui-proxy" {
 
 data "ignition_systemd_unit" "spark-ui-proxy" {
   name    = "spark-ui-proxy.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.spark-ui-proxy.rendered}"
 }

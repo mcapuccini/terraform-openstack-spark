@@ -8,6 +8,6 @@ data "template_file" "nvidia4coreos" {
 
 data "ignition_systemd_unit" "nvidia4coreos" {
   name    = "nvidia4coreos.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.nvidia4coreos.rendered}"
 }

@@ -77,22 +77,15 @@ resource "null_resource" "ssh-master" {
     private_key = "${file(replace(var.public_key,".pub",""))}"
   }
 
-  # Populate /etc/hosts and wait for master to be ready
   provisioner "remote-exec" {
     inline = [
       "echo '${join("\n",concat(module.master.etc_hosts_entries,module.workers.etc_hosts_entries))}' | sudo tee -a /etc/hosts",
-      "while ! (systemctl is-failed -q docker || systemctl is-active -q docker); do sleep 2; done",
-      "if systemctl is-failed -q docker; then exit 1; fi",
-      "while ! (systemctl is-failed -q nvidia4coreos || docker ps -a | grep -q nvidia4coreos); do sleep 2; done",
-      "if systemctl is-failed -q nvidia4coreos; then exit 1; fi",
-      "while ! (systemctl is-failed -q spark-ui-proxy || docker ps -a | grep -q spark-ui-proxy); do sleep 2; done",
-      "if systemctl is-failed -q spark-ui-proxy; then exit 1; fi",
-      "while ! (systemctl is-failed -q spark-master || docker ps -a | grep -q spark-master); do sleep 2; done",
-      "if systemctl is-failed -q spark-master; then exit 1; fi",
-      "while ! (systemctl is-failed -q zeppelin || docker ps -a | grep -q zeppelin); do sleep 2; done",
-      "if systemctl is-failed -q zeppelin; then exit 1; fi",
-      "while ! (systemctl is-failed -q hdfs-namenode || docker ps -a | grep -q hdfs-namenode); do sleep 2; done",
-      "if systemctl is-failed -q hdfs-namenode; then exit 1; fi",
+      "sudo systemctl enable nvidia4coreos && sudo systemctl start nvidia4coreos",
+      "sudo systemctl enable hdfs-namenode-fmt && sudo systemctl start hdfs-namenode-fmt",
+      "sudo systemctl enable hdfs-namenode && sudo systemctl start hdfs-namenode",
+      "sudo systemctl enable spark-master && sudo systemctl start spark-master",
+      "sudo systemctl enable spark-ui-proxy && sudo systemctl start spark-ui-proxy",
+      "sudo systemctl enable zeppelin && sudo systemctl start zeppelin",
     ]
   }
 }
@@ -112,10 +105,12 @@ resource "null_resource" "ssh-workers" {
     bastion_host     = "${element(module.master.public_ip_list,0)}"
   }
 
-  # Populate /etc/hosts
   provisioner "remote-exec" {
     inline = [
       "echo '${join("\n",concat(module.master.etc_hosts_entries,module.workers.etc_hosts_entries))}' | sudo tee -a /etc/hosts",
+      "sudo systemctl enable nvidia4coreos && sudo systemctl start nvidia4coreos",
+      "sudo systemctl enable hdfs-datanode && sudo systemctl start hdfs-datanode",
+      "sudo systemctl enable spark-worker && sudo systemctl start spark-worker",
     ]
   }
 }

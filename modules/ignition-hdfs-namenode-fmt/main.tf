@@ -8,6 +8,6 @@ data "template_file" "hdfs-namenode-fmt" {
 
 data "ignition_systemd_unit" "hdfs-namenode-fmt" {
   name    = "hdfs-namenode-fmt.service"
-  enabled = true
+  enabled = false
   content = "${data.template_file.hdfs-namenode-fmt.rendered}"
 }
