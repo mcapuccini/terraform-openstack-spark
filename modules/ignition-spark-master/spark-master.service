@@ -12,6 +12,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /etc/hadoop/:/etc/hadoop \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
                         --env SPARK_MASTER_HOST=$(hostname) \
+                        --env SPARK_LOCAL_DIRS=/var/tmp \
                         --network host \
                         --volumes-from nvidia4coreos \
                         --name spark-master \

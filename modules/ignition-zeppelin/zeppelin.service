@@ -16,6 +16,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --env MASTER=spark://$(hostname):7077 \
                         --env ZEPPELIN_PORT=8888 \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
+                        --env SPARK_LOCAL_DIRS=/var/tmp \
                         --volumes-from nvidia4coreos \
                         --name zeppelin \
                         $(for d in $(ls /dev/nvidia* 2>/dev/null); do echo -n \"--device $d \"; done) \
