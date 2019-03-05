@@ -9,6 +9,7 @@ ExecStartPre=-/usr/bin/docker rm spark-worker
 ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /var/run/docker.sock:/var/run/docker.sock \
                         --volume /tmp:/tmp \
+                        --volume /var/tmp:/var/tmp \
                         --volume /etc/hadoop/:/etc/hadoop \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
                         --env SPARK_LOCAL_DIRS=/var/tmp \
