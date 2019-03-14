@@ -11,6 +11,7 @@ ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
                         --volume /tmp:/tmp \
                         --volume /var/tmp:/var/tmp \
                         --volume /etc/hadoop/:/etc/hadoop \
+                        --volume /var/tmp:/var/tmp \
                         --env HADOOP_CONF_DIR=/etc/hadoop \
                         --env SPARK_LOCAL_DIRS=/var/tmp \
                         --network host \
